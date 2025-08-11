@@ -25,14 +25,29 @@ export default function Home() {
         <div className="flex-1 flex flex-col items-center justify-center p-5 space-y-8">
           <ConnectionTest />
           
-          <div className="w-full max-w-md">
-            <div className="text-center mb-4">
+          <div className="w-full max-w-md space-y-8">
+            <div className="text-center">
+              <h2 className="text-xl font-semibold mb-4">Personal Finance Tracker</h2>
+              <p className="text-muted-foreground text-sm mb-4">
+                Upload bank statements and get AI-powered spending insights
+              </p>
+              <Link 
+                href="/finance"
+                className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+              >
+                Launch Finance Tracker
+              </Link>
+            </div>
+            
+            <div className="text-center">
               <h2 className="text-xl font-semibold">Try Collaborative Workspaces</h2>
               <p className="text-muted-foreground text-sm mt-1">
                 Create a shared workspace - no sign-up required
               </p>
+              <div className="mt-4">
+                <CreateWorkspaceButton />
+              </div>
             </div>
-            <CreateWorkspaceButton />
           </div>
         </div>
 
