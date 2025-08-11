@@ -1,25 +1,23 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { FileUpload } from '@/components/file-upload';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-// import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Upload, 
   TrendingUp, 
   DollarSign, 
   PieChart, 
-  AlertCircle,
-  CheckCircle2,
   Clock,
-  FileText,
   CreditCard,
-  Target
+  Target,
+  Plus,
+  BarChart3
 } from 'lucide-react';
 import { SpendingCharts } from '@/components/spending-charts';
 import { BudgetRecommendations } from '@/components/budget-recommendations';
+import { UploadModal } from '@/components/upload-modal';
 import { parseFile } from '@/lib/file-parsers';
 import { categorizeTransactions } from '@/lib/transaction-categorizer';
 
@@ -64,6 +62,8 @@ export default function FinancePage() {
   const [categorySpending, setCategorySpending] = useState<{ category: string; amount: number; color?: string; icon?: string; type: string }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [currentView, setCurrentView] = useState<'dashboard' | 'transactions' | 'budget'>('dashboard');
 
   // Load initial data
   useEffect(() => {
@@ -211,153 +211,130 @@ export default function FinancePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center space-y-4">
-          <Clock className="h-8 w-8 animate-spin mx-auto text-blue-600" />
-          <p className="text-gray-600">Loading your finance dashboard...</p>
+          <Clock className="h-8 w-8 animate-spin mx-auto swiss-accent" />
+          <p className="text-muted-foreground">Loading your finance dashboard...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-white border-b">
+      <div className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Personal Finance Tracker</h1>
-              <p className="text-gray-600">Upload bank statements and get spending insights</p>
+              <h1 className="text-3xl font-bold text-foreground font-mono">Personal Finance</h1>
+              <p className="text-muted-foreground">Swiss precision financial analytics</p>
             </div>
-            <Badge variant="outline" className="flex items-center gap-1">
-              <TrendingUp className="h-3 w-3" />
-              AI-Powered
-            </Badge>
+            <div className="flex items-center gap-4">
+              <Badge variant="outline" className="flex items-center gap-1 border-border/50">
+                <BarChart3 className="h-3 w-3" />
+                AI-Powered
+              </Badge>
+              <Button 
+                onClick={() => setIsUploadModalOpen(true)}
+                className="flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Upload Data
+              </Button>
+            </div>
           </div>
         </div>
       </div>
 
+      {/* Navigation */}
+      <div className="border-b border-border/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <nav className="flex space-x-8">
+            <button
+              onClick={() => setCurrentView('dashboard')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                currentView === 'dashboard' 
+                  ? 'border-primary text-primary' 
+                  : 'border-transparent text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <PieChart className="h-4 w-4" />
+                Dashboard
+              </div>
+            </button>
+            <button
+              onClick={() => setCurrentView('transactions')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                currentView === 'transactions' 
+                  ? 'border-primary text-primary' 
+                  : 'border-transparent text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <CreditCard className="h-4 w-4" />
+                Transactions
+              </div>
+            </button>
+            <button
+              onClick={() => setCurrentView('budget')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                currentView === 'budget' 
+                  ? 'border-primary text-primary' 
+                  : 'border-transparent text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Target className="h-4 w-4" />
+                Budget
+              </div>
+            </button>
+          </nav>
+        </div>
+      </div>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Tabs defaultValue="upload" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="upload" className="flex items-center gap-2">
-              <Upload className="h-4 w-4" />
-              Upload Files
-            </TabsTrigger>
-            <TabsTrigger value="dashboard" className="flex items-center gap-2">
-              <PieChart className="h-4 w-4" />
-              Dashboard
-            </TabsTrigger>
-            <TabsTrigger value="transactions" className="flex items-center gap-2">
-              <CreditCard className="h-4 w-4" />
-              Transactions
-            </TabsTrigger>
-            <TabsTrigger value="budget" className="flex items-center gap-2">
-              <Target className="h-4 w-4" />
-              Budget
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Upload Tab */}
-          <TabsContent value="upload" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Upload Bank Statements
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <FileUpload 
-                  onFilesUpload={handleFilesUpload}
-                  isProcessing={isProcessing}
-                  maxFiles={5}
-                />
-                
-                {error && (
-                  <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-                    <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <h4 className="font-medium text-red-900">Upload Error</h4>
-                      <p className="text-red-700 text-sm mt-1">{error}</p>
-                    </div>
-                  </div>
-                )}
-                
-                {uploadStats && (
-                  <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-                    <div className="flex items-start gap-3">
-                      <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
-                      <div className="flex-1">
-                        <h4 className="font-medium text-green-900">Upload Successful!</h4>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3">
-                          <div>
-                            <p className="text-sm text-green-700">Transactions</p>
-                            <p className="text-lg font-semibold text-green-900">{uploadStats.totalTransactions}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-green-700">Total Amount</p>
-                            <p className="text-lg font-semibold text-green-900">{formatCurrency(uploadStats.totalAmount)}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-green-700">Date Range</p>
-                            <p className="text-sm font-medium text-green-900">
-                              {formatDate(uploadStats.dateRange.start)} - {formatDate(uploadStats.dateRange.end)}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-green-700">Categories</p>
-                            <p className="text-lg font-semibold text-green-900">{Object.keys(uploadStats.categories).length}</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Dashboard Tab */}
-          <TabsContent value="dashboard" className="space-y-6">
+        {/* Dashboard View */}
+        {currentView === 'dashboard' && (
+          <div className="space-y-6">
             {/* Quick Stats */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <Card>
+              <Card className="swiss-card">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">Total Transactions</p>
-                      <p className="text-2xl font-bold text-gray-900">{recentTransactions.length}</p>
+                      <p className="text-sm font-medium text-muted-foreground">Total Transactions</p>
+                      <p className="text-2xl font-bold text-foreground swiss-metric">{recentTransactions.length}</p>
                     </div>
-                    <CreditCard className="h-8 w-8 text-blue-600" />
+                    <CreditCard className="h-8 w-8 swiss-accent" />
                   </div>
                 </CardContent>
               </Card>
               
-              <Card>
+              <Card className="swiss-card">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">This Month</p>
-                      <p className="text-2xl font-bold text-gray-900">
+                      <p className="text-sm font-medium text-muted-foreground">This Month</p>
+                      <p className="text-2xl font-bold text-foreground swiss-metric">
                         {monthlySpending.length > 0 
                           ? formatCurrency(monthlySpending[monthlySpending.length - 1]?.total_expenses || 0)
                           : '$0.00'
                         }
                       </p>
                     </div>
-                    <DollarSign className="h-8 w-8 text-green-600" />
+                    <DollarSign className="h-8 w-8 success-color" />
                   </div>
                 </CardContent>
               </Card>
               
-              <Card>
+              <Card className="swiss-card">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">Average Monthly</p>
-                      <p className="text-2xl font-bold text-gray-900">
+                      <p className="text-sm font-medium text-muted-foreground">Average Monthly</p>
+                      <p className="text-2xl font-bold text-foreground swiss-metric">
                         {monthlySpending.length > 0
                           ? formatCurrency(
                               monthlySpending.reduce((sum, month) => sum + month.total_expenses, 0) / monthlySpending.length
@@ -366,21 +343,21 @@ export default function FinancePage() {
                         }
                       </p>
                     </div>
-                    <TrendingUp className="h-8 w-8 text-purple-600" />
+                    <TrendingUp className="h-8 w-8 warning-color" />
                   </div>
                 </CardContent>
               </Card>
               
-              <Card>
+              <Card className="swiss-card">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">Categories</p>
-                      <p className="text-2xl font-bold text-gray-900">
+                      <p className="text-sm font-medium text-muted-foreground">Categories</p>
+                      <p className="text-2xl font-bold text-foreground swiss-metric">
                         {new Set(recentTransactions.map(t => t.category?.name).filter(Boolean)).size}
                       </p>
                     </div>
-                    <PieChart className="h-8 w-8 text-orange-600" />
+                    <PieChart className="h-8 w-8 swiss-accent" />
                   </div>
                 </CardContent>
               </Card>
@@ -391,35 +368,37 @@ export default function FinancePage() {
               monthlyData={monthlySpending}
               categoryData={categorySpending}
             />
-          </TabsContent>
+          </div>
+        )}
 
-          {/* Transactions Tab */}
-          <TabsContent value="transactions" className="space-y-6">
-            <Card>
+        {/* Transactions View */}
+        {currentView === 'transactions' && (
+          <div className="space-y-6">
+            <Card className="swiss-card">
               <CardHeader>
-                <CardTitle>Recent Transactions</CardTitle>
+                <CardTitle className="text-foreground">Recent Transactions</CardTitle>
               </CardHeader>
               <CardContent>
                 {recentTransactions.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    <CreditCard className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-                    <p>No transactions found</p>
+                  <div className="text-center py-8 text-muted-foreground">
+                    <CreditCard className="h-12 w-12 mx-auto mb-4 text-muted-foreground/60" />
+                    <p className="text-foreground">No transactions found</p>
                     <p className="text-sm">Upload bank statements to get started!</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
                     {recentTransactions.map((transaction) => (
-                      <div key={transaction.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                      <div key={transaction.id} className="flex items-center justify-between p-4 border border-border/50 rounded-lg hover:bg-muted/30 transition-colors">
                         <div className="flex items-center gap-3">
                           <div 
                             className="w-10 h-10 rounded-full flex items-center justify-center text-white font-medium"
-                            style={{ backgroundColor: transaction.category?.color || '#gray' }}
+                            style={{ backgroundColor: transaction.category?.color || 'hsl(var(--muted))' }}
                           >
                             {transaction.category?.icon || '💳'}
                           </div>
                           <div>
-                            <p className="font-medium">{transaction.description}</p>
-                            <div className="flex items-center gap-2 text-sm text-gray-500">
+                            <p className="font-medium text-foreground">{transaction.description}</p>
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
                               <span>{formatDate(transaction.date)}</span>
                               {transaction.merchant && (
                                 <>
@@ -431,12 +410,12 @@ export default function FinancePage() {
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className={`font-semibold ${
-                            transaction.amount >= 0 ? 'text-green-600' : 'text-red-600'
+                          <p className={`font-semibold swiss-metric ${
+                            transaction.amount >= 0 ? 'success-color' : 'text-destructive'
                           }`}>
                             {transaction.amount >= 0 ? '+' : ''}{formatCurrency(transaction.amount)}
                           </p>
-                          <Badge variant="outline" className="mt-1">
+                          <Badge variant="outline" className="mt-1 border-border/50">
                             {transaction.category?.name || 'Uncategorized'}
                           </Badge>
                         </div>
@@ -446,10 +425,12 @@ export default function FinancePage() {
                 )}
               </CardContent>
             </Card>
-          </TabsContent>
+          </div>
+        )}
 
-          {/* Budget Tab */}
-          <TabsContent value="budget" className="space-y-6">
+        {/* Budget View */}
+        {currentView === 'budget' && (
+          <div className="space-y-6">
             <BudgetRecommendations 
               monthlyData={monthlySpending}
               categoryData={categorySpending}
@@ -458,9 +439,19 @@ export default function FinancePage() {
                 : undefined
               }
             />
-          </TabsContent>
-        </Tabs>
+          </div>
+        )}
       </div>
+
+      {/* Upload Modal */}
+      <UploadModal
+        isOpen={isUploadModalOpen}
+        onClose={() => setIsUploadModalOpen(false)}
+        onFilesUpload={handleFilesUpload}
+        isProcessing={isProcessing}
+        uploadStats={uploadStats}
+        error={error}
+      />
     </div>
   );
 }

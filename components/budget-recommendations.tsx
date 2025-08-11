@@ -213,27 +213,27 @@ export function BudgetRecommendations({
 
   const getRiskColor = (risk: string) => {
     switch (risk) {
-      case 'high': return 'bg-red-100 text-red-800';
-      case 'medium': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-green-100 text-green-800';
+      case 'high': return 'bg-destructive/10 text-destructive border-destructive/20';
+      case 'medium': return 'bg-warning/10 text-warning border-warning/20';
+      default: return 'bg-success/10 text-success border-success/20';
     }
   };
 
   const getConfidenceColor = (confidence: string) => {
     switch (confidence) {
-      case 'high': return 'bg-blue-100 text-blue-800';
-      case 'medium': return 'bg-purple-100 text-purple-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'high': return 'bg-info/10 text-info border-info/20';
+      case 'medium': return 'bg-muted text-muted-foreground border-border';
+      default: return 'bg-muted text-muted-foreground border-border';
     }
   };
 
   if (recommendations.length === 0) {
     return (
       <div className={className}>
-        <Card>
-          <CardContent className="p-8 text-center text-gray-500">
-            <Target className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-            <h3 className="font-medium mb-2">No Budget Recommendations</h3>
+        <Card className="swiss-card">
+          <CardContent className="p-8 text-center text-muted-foreground">
+            <Target className="h-12 w-12 mx-auto mb-4 text-muted-foreground/60" />
+            <h3 className="font-medium mb-2 text-foreground">No Budget Recommendations</h3>
             <p className="text-sm">Upload spending data to get personalized budget suggestions.</p>
           </CardContent>
         </Card>
@@ -244,37 +244,37 @@ export function BudgetRecommendations({
   return (
     <div className={`space-y-6 ${className}`}>
       {/* Summary Card */}
-      <Card className="border-l-4 border-l-blue-500">
+      <Card className="swiss-card border-l-4 border-l-primary">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Lightbulb className="h-5 w-5 text-blue-600" />
+          <CardTitle className="flex items-center gap-2 text-foreground">
+            <Lightbulb className="h-5 w-5 warning-color" />
             Budget Recommendations
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <div className="text-center">
-              <p className="text-sm text-gray-600">Current Spending</p>
-              <p className="text-2xl font-bold text-gray-900">{formatCurrency(totalCurrentSpending)}</p>
+              <p className="text-sm text-muted-foreground">Current Spending</p>
+              <p className="text-2xl font-bold text-foreground swiss-metric">{formatCurrency(totalCurrentSpending)}</p>
             </div>
             <div className="text-center">
-              <p className="text-sm text-gray-600">Recommended Budget</p>
-              <p className="text-2xl font-bold text-blue-600">{formatCurrency(totalRecommendedBudget)}</p>
+              <p className="text-sm text-muted-foreground">Recommended Budget</p>
+              <p className="text-2xl font-bold swiss-accent swiss-metric">{formatCurrency(totalRecommendedBudget)}</p>
             </div>
             <div className="text-center">
-              <p className="text-sm text-gray-600">Potential Savings</p>
-              <p className={`text-2xl font-bold ${totalSavings > 0 ? 'text-green-600' : 'text-red-600'}`}>
+              <p className="text-sm text-muted-foreground">Potential Savings</p>
+              <p className={`text-2xl font-bold swiss-metric ${totalSavings > 0 ? 'success-color' : 'text-destructive'}`}>
                 {totalSavings > 0 ? '' : '+'}{formatCurrency(totalSavings)}
               </p>
             </div>
           </div>
           
           {totalSavings > 0 && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-start gap-3">
-              <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+            <div className="bg-success/10 border border-success/20 rounded-lg p-4 flex items-start gap-3">
+              <CheckCircle2 className="h-5 w-5 success-color flex-shrink-0 mt-0.5" />
               <div>
-                <h4 className="font-medium text-green-900">Great Savings Potential!</h4>
-                <p className="text-green-700 text-sm mt-1">
+                <h4 className="font-medium text-foreground">Great Savings Potential!</h4>
+                <p className="text-muted-foreground text-sm mt-1">
                   By following these recommendations, you could save {formatCurrency(totalSavings)} per month.
                 </p>
               </div>
@@ -286,23 +286,23 @@ export function BudgetRecommendations({
       {/* Individual Recommendations */}
       <div className="grid gap-4">
         {recommendations.map((rec, index) => (
-          <Card key={index} className="hover:shadow-md transition-shadow">
+          <Card key={index} className="swiss-card hover:shadow-md transition-shadow">
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-3">
                   <div 
                     className="w-8 h-8 rounded-full flex items-center justify-center text-white font-medium text-sm"
-                    style={{ backgroundColor: rec.color || '#gray' }}
+                    style={{ backgroundColor: rec.color || 'hsl(var(--muted))' }}
                   >
                     {rec.icon || '💰'}
                   </div>
                   <div>
-                    <h3 className="font-medium">{rec.category}</h3>
+                    <h3 className="font-medium text-foreground">{rec.category}</h3>
                     <div className="flex items-center gap-2 mt-1">
-                      <Badge variant="outline" className={getRiskColor(rec.riskLevel)}>
+                      <Badge variant="outline" className={`${getRiskColor(rec.riskLevel)} border`}>
                         {rec.riskLevel} risk
                       </Badge>
-                      <Badge variant="outline" className={getConfidenceColor(rec.confidence)}>
+                      <Badge variant="outline" className={`${getConfidenceColor(rec.confidence)} border`}>
                         {rec.confidence} confidence
                       </Badge>
                     </div>
@@ -310,19 +310,19 @@ export function BudgetRecommendations({
                 </div>
                 
                 <div className="text-right">
-                  <p className="text-sm text-gray-600">Current → Recommended</p>
-                  <p className="font-semibold">
+                  <p className="text-sm text-muted-foreground">Current → Recommended</p>
+                  <p className="font-semibold text-foreground swiss-metric">
                     {formatCurrency(rec.currentSpending)} → {formatCurrency(rec.recommendedBudget)}
                   </p>
                   {rec.currentSpending !== rec.recommendedBudget && (
                     <div className="flex items-center justify-end gap-1 mt-1">
                       {rec.recommendedBudget < rec.currentSpending ? (
-                        <TrendingDown className="h-3 w-3 text-green-600" />
+                        <TrendingDown className="h-3 w-3 success-color" />
                       ) : (
-                        <TrendingUp className="h-3 w-3 text-red-600" />
+                        <TrendingUp className="h-3 w-3 text-destructive" />
                       )}
                       <span className={`text-xs ${
-                        rec.recommendedBudget < rec.currentSpending ? 'text-green-600' : 'text-red-600'
+                        rec.recommendedBudget < rec.currentSpending ? 'success-color' : 'text-destructive'
                       }`}>
                         {formatCurrency(Math.abs(rec.recommendedBudget - rec.currentSpending))}
                       </span>
